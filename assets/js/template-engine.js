@@ -8,6 +8,7 @@
  * - data-include="partials/nav.html"    -> @include (mendukung nested include)
  * - data-push="styles|scripts|..."      -> @push
  * - data-stack="styles|scripts|..."     -> @stack
+ * - data-config="app-name"              -> config('app.name') dari <meta> di index.html
  * - prefix "@/" pada href/src/action    -> asset() / url() relatif terhadap root proyek
  */
 (function () {
@@ -186,7 +187,39 @@
       }
    }
 
-   function applyYields(rootNode, sections) {
+   async function loadAppConfig() {
+      const config = {};
+      try {
+         const indexUrl = resolveProjectUrl('index.html', rootUrl);
+         const html = await fetchHtml(indexUrl);
+         const parsed = new DOMParser().parseFromString(html, 'text/html');
+
+         parsed.querySelectorAll('meta[name^="app-"][content]').forEach(function (meta) {
+            const key = meta.getAttribute('name');
+            const val = meta.getAttribute('content');
+            if (key && val !== null) {
+               config[key] = val.trim();
+            }
+         });
+      } catch (err) {
+         console.warn('[TemplateEngine] Pengaturan global dari index.html tidak dapat dimuat:', err);
+      }
+      return config;
+   }
+
+   function applyConfigs(rootNode, config) {
+      if (!rootNode || !rootNode.querySelectorAll) return;
+
+      rootNode.querySelectorAll('[data-config]').forEach(function (el) {
+         const key = el.getAttribute('data-config');
+         if (key && Object.prototype.hasOwnProperty.call(config, key) && config[key] !== '') {
+            el.textContent = config[key];
+         }
+         el.removeAttribute('data-config');
+      });
+   }
+
+   function applyYields(rootNode, sections, config) {
       const yieldNodes = Array.from(rootNode.querySelectorAll('[data-yield]'));
 
       for (const node of yieldNodes) {
@@ -194,13 +227,24 @@
          const hasSection = sections.has(name);
 
          if (node.tagName === 'TITLE') {
+            const suffixKey = node.getAttribute('data-title-suffix');
+            const suffix = suffixKey && config && config[suffixKey] ? config[suffixKey] : '';
+
             if (hasSection) {
                const text = sections.get(name).textContent.trim();
                if (text) {
-                  node.textContent = text;
+                  node.textContent = suffix && !text.includes(suffix)
+                     ? text + ' — ' + suffix
+                     : text;
+               } else if (suffix) {
+                  node.textContent = suffix;
                }
+            } else if (suffix) {
+               node.textContent = suffix;
             }
+
             node.removeAttribute('data-yield');
+            node.removeAttribute('data-title-suffix');
             continue;
          }
 
@@ -376,6 +420,9 @@
 
    async function render() {
       const stacks = new Map();
+      const config = await loadAppConfig();
+      window.TemplateEngine.config = config;
+
       const extendsNode = document.querySelector('[data-extends]');
 
       if (extendsNode) {
@@ -412,11 +459,13 @@
             stacks.get(name).push(...items);
          }
 
-         // Terapkan yield & stack pada head dan body layout
-         applyYields(parsed.head, sections);
-         applyYields(parsed.body, sections);
+         // Terapkan yield, stack, dan config global pada head dan body layout
+         applyYields(parsed.head, sections, config);
+         applyYields(parsed.body, sections, config);
          applyStacks(parsed.head, stacks);
          applyStacks(parsed.body, stacks);
+         applyConfigs(parsed.head, config);
+         applyConfigs(parsed.body, config);
 
          // Pastikan semua path @/ hasil yield/stack ikut ter-resolve
          rewriteAtUrls(parsed.head);
@@ -475,6 +524,8 @@
 
          applyStacks(document.head, stacks);
          applyStacks(document.body, stacks);
+         applyConfigs(document.head, config);
+         applyConfigs(document.body, config);
          rewriteAtUrls(document.head);
          rewriteAtUrls(document.body);
 
@@ -485,13 +536,14 @@
 
       window.TemplateEngine.isReady = true;
       document.dispatchEvent(new CustomEvent('template:ready', {
-         detail: { rootUrl: rootUrl }
+         detail: { rootUrl: rootUrl, config: config }
       }));
    }
 
    window.TemplateEngine = {
       rootUrl: rootUrl,
       isReady: false,
+      config: {},
       url: function (path) {
          return resolveProjectUrl(path, rootUrl);
       }

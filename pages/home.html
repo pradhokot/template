@@ -9,7 +9,7 @@
 
 <body hidden>
    <template data-extends="layouts/app.html"></template>
-   <template data-section="title">Beranda — Nama Aplikasi</template>
+   <template data-section="title">Beranda</template>
 
    <template data-section="content">
       <section class="py-5 border-bottom bg-body-tertiary">
@@ -76,6 +76,11 @@
                         <td><code>data-stack="styles"</code> / <code>data-stack="scripts"</code></td>
                         <td><code>@stack('styles')</code> / <code>@stack('scripts')</code></td>
                         <td>Menentukan titik keluaran untuk seluruh item hasil push.</td>
+                     </tr>
+                     <tr>
+                        <td><code>data-config="app-name"</code></td>
+                        <td><code>config('app.name')</code></td>
+                        <td>Mengambil nilai pengaturan global dari tag <code>&lt;meta name="app-*"&gt;</code> di <code>index.html</code>.</td>
                      </tr>
                      <tr>
                         <td><code>href="@/admin/dashboard.html"</code></td>

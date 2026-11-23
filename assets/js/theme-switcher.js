@@ -41,7 +41,25 @@
       const resolved = resolveTheme(theme);
       document.documentElement.setAttribute('data-bs-theme', resolved);
       updateSwitchers(theme);
+      updateToggleButtons(resolved);
       updateThemeImages(resolved);
+   }
+
+   function updateToggleButtons(resolvedTheme) {
+      const isDark = resolvedTheme === 'dark';
+      const nextLabel = isDark ? 'Ubah ke mode terang' : 'Ubah ke mode gelap';
+      const iconClass = isDark ? 'bi bi-sun-fill' : 'bi bi-moon-stars-fill';
+
+      document.querySelectorAll('[data-theme-toggle]').forEach(function (btn) {
+         btn.setAttribute('aria-label', nextLabel);
+         btn.setAttribute('title', nextLabel);
+         btn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+
+         const iconEl = btn.querySelector('[data-theme-toggle-icon]');
+         if (iconEl) {
+            iconEl.className = iconClass;
+         }
+      });
    }
 
    function updateThemeImages(resolvedTheme) {
@@ -108,6 +126,18 @@
             if (!selected) return;
             savePreferredTheme(selected);
             applyTheme(selected);
+         });
+      });
+
+      document.querySelectorAll('[data-theme-toggle]').forEach(function (btn) {
+         if (btn.dataset.themeBound === 'true') return;
+         btn.dataset.themeBound = 'true';
+
+         btn.addEventListener('click', function () {
+            const currentResolved = resolveTheme(getPreferredTheme());
+            const nextTheme = currentResolved === 'dark' ? 'light' : 'dark';
+            savePreferredTheme(nextTheme);
+            applyTheme(nextTheme);
          });
       });
    }

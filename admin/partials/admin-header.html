@@ -1,0 +1,61 @@
+<header class="admin-header sticky-top bg-body border-bottom px-3 px-lg-4 d-flex align-items-center justify-content-between gap-3">
+   <div class="d-flex align-items-center gap-2">
+      <!-- Toggle offcanvas untuk layar kecil -->
+      <button
+         class="btn btn-outline-secondary btn-sm d-lg-none"
+         type="button"
+         data-bs-toggle="offcanvas"
+         data-bs-target="#adminSidebar"
+         aria-controls="adminSidebar"
+         aria-label="Buka menu samping"
+      >
+         <i class="bi bi-list" aria-hidden="true"></i>
+      </button>
+
+      <!-- Toggle collapse untuk layar desktop -->
+      <button
+         class="btn btn-outline-secondary btn-sm d-none d-lg-inline-flex align-items-center"
+         type="button"
+         data-sidebar-toggle
+         aria-controls="adminSidebar"
+         aria-expanded="true"
+         aria-label="Sembunyikan atau tampilkan sidebar"
+      >
+         <i class="bi bi-layout-sidebar" aria-hidden="true"></i>
+      </button>
+
+      <span class="fw-semibold" data-yield="page-title">Dashboard</span>
+   </div>
+
+   <div class="d-flex align-items-center gap-2">
+      <template data-include="components/theme-switcher.html"></template>
+
+      <div class="dropdown">
+         <button
+            class="btn btn-outline-secondary btn-sm dropdown-toggle d-inline-flex align-items-center gap-1"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+         >
+            <i class="bi bi-person-circle" aria-hidden="true"></i>
+            <span class="d-none d-sm-inline">Admin</span>
+         </button>
+         <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+            <li>
+               <a class="dropdown-item d-flex align-items-center gap-2" href="@/pages/home.html">
+                  <i class="bi bi-globe" aria-hidden="true"></i>
+                  Halaman Publik
+               </a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+               <a class="dropdown-item text-danger d-flex align-items-center gap-2" href="@/auth/login.html">
+                  <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+                  Keluar
+               </a>
+            </li>
+         </ul>
+      </div>
+   </div>
+</header>
+

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <script src="../assets/js/template-engine.js"></script>
+</head>
+
+<body hidden>
+   <template data-extends="layouts/admin.html"></template>
+   <template data-section="title">Dashboard — Panel Admin</template>
+   <template data-section="page-title">Dashboard</template>
+
+   <template data-section="content">
+      <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-2 mb-4">
+         <div>
+            <h1 class="h4 fw-semibold mb-1">Dashboard</h1>
+            <p class="text-body-secondary mb-0 small">Area kerja utama panel admin. Ganti konten ini sesuai kebutuhan modul preview.</p>
+         </div>
+         <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#exampleActionModal">
+            <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>
+            Tambah Data
+         </button>
+      </div>
+
+      <section class="card shadow-sm" aria-labelledby="recentDataHeading">
+         <div class="card-header bg-body d-flex align-items-center justify-content-between">
+            <h2 id="recentDataHeading" class="h6 mb-0 fw-semibold">Contoh Tabel Data</h2>
+            <span class="badge text-bg-secondary">3 baris</span>
+         </div>
+         <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+               <thead>
+                  <tr>
+                     <th scope="col">Nama</th>
+                     <th scope="col">Kategori</th>
+                     <th scope="col">Status</th>
+                     <th scope="col" class="text-end">Aksi</th>
+                  </tr>
+               </thead>
+               <tbody>
+                  <tr>
+                     <td class="fw-medium">Contoh Item Pertama</td>
+                     <td>Umum</td>
+                     <td><span class="badge text-bg-success">Aktif</span></td>
+                     <td class="text-end">
+                        <button type="button" class="btn btn-outline-secondary btn-sm">Detail</button>
+                     </td>
+                  </tr>
+                  <tr>
+                     <td class="fw-medium">Contoh Item Kedua</td>
+                     <td>Operasional</td>
+                     <td><span class="badge text-bg-warning">Menunggu</span></td>
+                     <td class="text-end">
+                        <button type="button" class="btn btn-outline-secondary btn-sm">Detail</button>
+                     </td>
+                  </tr>
+                  <tr>
+                     <td class="fw-medium">Contoh Item Ketiga</td>
+                     <td>Arsip</td>
+                     <td><span class="badge text-bg-secondary">Selesai</span></td>
+                     <td class="text-end">
+                        <button type="button" class="btn btn-outline-secondary btn-sm">Detail</button>
+                     </td>
+                  </tr>
+               </tbody>
+            </table>
+         </div>
+      </section>
+
+      <!-- Modal contoh untuk memverifikasi komponen JS Bootstrap pada layout admin -->
+      <div class="modal fade" id="exampleActionModal" tabindex="-1" aria-labelledby="exampleActionModalLabel" aria-hidden="true">
+         <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+               <div class="modal-header">
+                  <h2 class="modal-title fs-5" id="exampleActionModalLabel">Tambah Data Contoh</h2>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+               </div>
+               <form id="exampleModalForm">
+                  <div class="modal-body">
+                     <div class="mb-3">
+                        <label for="exampleItemName" class="form-label">Nama Item</label>
+                        <input type="text" class="form-control" id="exampleItemName" placeholder="Masukkan nama item" required>
+                     </div>
+                     <div>
+                        <label for="exampleItemCategory" class="form-label">Kategori</label>
+                        <select class="form-select" id="exampleItemCategory">
+                           <option value="Umum">Umum</option>
+                           <option value="Operasional">Operasional</option>
+                           <option value="Arsip">Arsip</option>
+                        </select>
+                     </div>
+                  </div>
+                  <div class="modal-footer">
+                     <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
+                     <button type="submit" class="btn btn-primary btn-sm">Simpan</button>
+                  </div>
+               </form>
+            </div>
+         </div>
+      </div>
+   </template>
+
+   <template data-push="scripts">
+      <script>
+         (function () {
+            const form = document.getElementById('exampleModalForm');
+            if (!form) return;
+
+            form.addEventListener('submit', function (event) {
+               event.preventDefault();
+               const modalEl = document.getElementById('exampleActionModal');
+               const modal = modalEl ? window.bootstrap.Modal.getInstance(modalEl) : null;
+               if (modal) modal.hide();
+               form.reset();
+            });
+         })();
+      </script>
+   </template>
+</body>
+
+</html>

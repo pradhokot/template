@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title data-yield="title">Admin — Nama Aplikasi</title>
+   <link rel="stylesheet" href="@/assets/vendor/bootstrap-5.3.8-dist/css/bootstrap.min.css">
+   <link rel="stylesheet" href="@/assets/vendor/bootstrap-icons-1.13.1/bootstrap-icons.min.css">
+   <link rel="stylesheet" href="@/assets/css/admin.css">
+   <template data-stack="styles"></template>
+</head>
+
+<body class="bg-body-tertiary">
+   <div class="admin-wrapper d-flex">
+      <template data-include="admin/partials/admin-sidebar.html"></template>
+
+      <div class="admin-main d-flex flex-column min-vh-100">
+         <template data-include="admin/partials/admin-header.html"></template>
+
+         <main id="main-content" class="flex-grow-1 p-3 p-lg-4" tabindex="-1">
+            <template data-yield="content"></template>
+         </main>
+
+         <template data-include="admin/partials/admin-footer.html"></template>
+      </div>
+   </div>
+
+   <script src="@/assets/vendor/bootstrap-5.3.8-dist/js/bootstrap.bundle.min.js"></script>
+   <script src="@/assets/js/theme-switcher.js"></script>
+   <script src="@/assets/js/admin.js"></script>
+   <template data-stack="scripts"></template>
+</body>
+
+</html>
+

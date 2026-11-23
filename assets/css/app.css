@@ -1,0 +1,14 @@
+/* Gaya dasar area publik dan autentikasi (berbasis token Bootstrap 5.3) */
+
+.skip-link:focus {
+   position: fixed !important;
+   top: 0.75rem;
+   left: 0.75rem;
+   z-index: 1080;
+}
+
+.auth-card {
+   width: 100%;
+   max-width: 420px;
+}
+

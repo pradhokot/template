@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <script src="../assets/js/template-engine.js"></script>
+</head>
+
+<body hidden>
+   <template data-extends="layouts/auth.html"></template>
+   <template data-section="title">Masuk — Nama Aplikasi</template>
+
+   <template data-section="content">
+      <div class="card shadow-sm">
+         <div class="card-body p-4">
+            <h1 class="h4 fw-semibold mb-1">Masuk</h1>
+            <p class="text-body-secondary small mb-4">Gunakan akun Anda untuk mengakses dashboard.</p>
+
+            <form id="loginForm" class="needs-validation" novalidate>
+               <div class="mb-3">
+                  <label for="loginEmail" class="form-label">Email</label>
+                  <input
+                     type="email"
+                     class="form-control"
+                     id="loginEmail"
+                     name="email"
+                     placeholder="nama@contoh.com"
+                     autocomplete="email"
+                     required
+                  >
+                  <div class="invalid-feedback">Masukkan alamat email yang valid.</div>
+               </div>
+
+               <div class="mb-3">
+                  <label for="loginPassword" class="form-label">Kata Sandi</label>
+                  <div class="input-group">
+                     <input
+                        type="password"
+                        class="form-control"
+                        id="loginPassword"
+                        name="password"
+                        placeholder="Masukkan kata sandi"
+                        autocomplete="current-password"
+                        required
+                     >
+                     <button
+                        class="btn btn-outline-secondary"
+                        type="button"
+                        id="togglePasswordBtn"
+                        aria-label="Tampilkan kata sandi"
+                        aria-pressed="false"
+                     >
+                        <i class="bi bi-eye" aria-hidden="true"></i>
+                     </button>
+                     <div class="invalid-feedback">Kata sandi wajib diisi.</div>
+                  </div>
+               </div>
+
+               <div class="form-check mb-4">
+                  <input class="form-check-input" type="checkbox" id="rememberMe">
+                  <label class="form-check-label small" for="rememberMe">Ingat saya</label>
+               </div>
+
+               <button type="submit" class="btn btn-primary w-100">Masuk</button>
+            </form>
+         </div>
+      </div>
+
+      <p class="text-center small text-body-secondary mt-3 mb-0">
+         Kembali ke <a href="@/pages/home.html" class="text-decoration-none">Beranda</a>
+      </p>
+   </template>
+
+   <template data-push="scripts">
+      <script>
+         (function () {
+            const form = document.getElementById('loginForm');
+            const passwordInput = document.getElementById('loginPassword');
+            const toggleBtn = document.getElementById('togglePasswordBtn');
+
+            if (toggleBtn && passwordInput) {
+               toggleBtn.addEventListener('click', function () {
+                  const isHidden = passwordInput.type === 'password';
+                  passwordInput.type = isHidden ? 'text' : 'password';
+                  toggleBtn.setAttribute('aria-pressed', isHidden ? 'true' : 'false');
+                  toggleBtn.setAttribute('aria-label', isHidden ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi');
+
+                  const icon = toggleBtn.querySelector('i');
+                  if (icon) {
+                     icon.className = isHidden ? 'bi bi-eye-slash' : 'bi bi-eye';
+                  }
+               });
+            }
+
+            if (form) {
+               form.addEventListener('submit', function (event) {
+                  event.preventDefault();
+                  form.classList.add('was-validated');
+
+                  if (form.checkValidity()) {
+                     window.location.href = window.TemplateEngine.url('admin/dashboard.html');
+                  }
+               });
+            }
+         })();
+      </script>
+   </template>
+</body>
+
+</html>
+

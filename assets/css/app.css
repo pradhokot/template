@@ -7,8 +7,6 @@
    z-index: 1080;
 }
 
-.auth-card {
-   width: 100%;
-   max-width: 420px;
+body>main {
+   background-color: red;
 }
-

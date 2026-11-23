@@ -17,16 +17,18 @@
    const THEME_STORAGE_KEY = 'app-theme';
    const MAX_INCLUDE_DEPTH = 12;
    const STYLESHEET_TIMEOUT_MS = 1500;
+   const DEV_CACHE_BUST = String(Date.now());
    const REWRITE_ATTRS = ['href', 'src', 'action', 'poster', 'data-href', 'data-img-theme-light', 'data-img-theme-dark'];
 
    // Deteksi root proyek secara otomatis dari posisi script ini
-   const currentScript = document.currentScript;
+   const currentScript = document.currentScript || document.querySelector('script[src*="assets/js/template-engine.js"]');
    const scriptSrc = currentScript ? currentScript.getAttribute('src') : 'assets/js/template-engine.js';
    const engineUrl = new URL(scriptSrc, window.location.href);
    const rootUrl = engineUrl.href.replace(/assets\/js\/template-engine\.js(\?.*)?$/, '');
 
    // Terapkan tema sedini mungkin untuk mencegah kedipan warna (theme flicker)
-   applyInitialTheme();
+   const initialResolvedTheme = resolveInitialTheme();
+   document.documentElement.setAttribute('data-bs-theme', initialResolvedTheme);
 
    // Cegah FOUC sementara template dirakit
    const loadingStyle = document.createElement('style');
@@ -35,12 +37,20 @@
    document.head.appendChild(loadingStyle);
    document.documentElement.classList.add('template-loading');
 
-   function applyInitialTheme() {
-      const saved = localStorage.getItem(THEME_STORAGE_KEY) || 'auto';
-      const resolved = saved === 'auto'
+   function readStorage(key, fallback) {
+      try {
+         return localStorage.getItem(key) || fallback;
+      } catch (_) {
+         return fallback;
+      }
+   }
+
+   function resolveInitialTheme() {
+      const raw = readStorage(THEME_STORAGE_KEY, 'auto');
+      const saved = (raw === 'light' || raw === 'dark' || raw === 'auto') ? raw : 'auto';
+      return saved === 'auto'
          ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
          : saved;
-      document.documentElement.setAttribute('data-bs-theme', resolved);
    }
 
    function resolveProjectUrl(path, baseUrl) {
@@ -55,6 +65,26 @@
          return new URL(path, baseUrl || window.location.href).href;
       }
       return new URL(path.replace(/^\/+/, ''), rootUrl).href;
+   }
+
+   function isLocalCustomAsset(url) {
+      if (!url || !url.startsWith(rootUrl)) return false;
+      const relPath = url.slice(rootUrl.length).split(/[?#]/)[0];
+      if (relPath.startsWith('assets/vendor/')) return false;
+      return relPath.startsWith('assets/css/') || relPath.startsWith('assets/js/');
+   }
+
+   function withCacheBust(url) {
+      if (!isLocalCustomAsset(url)) return url;
+      try {
+         const parsedUrl = new URL(url);
+         if (!parsedUrl.searchParams.has('v')) {
+            parsedUrl.searchParams.set('v', DEV_CACHE_BUST);
+         }
+         return parsedUrl.href;
+      } catch (_) {
+         return url;
+      }
    }
 
    function rewriteAtUrls(container) {
@@ -219,6 +249,35 @@
       });
    }
 
+   function applyTitleElement(titleNode, sections, config) {
+      const hasSection = sections && sections.has('title');
+      const suffixKey = titleNode.getAttribute('data-title-suffix');
+      const suffix = suffixKey && config && config[suffixKey] ? config[suffixKey] : '';
+
+      if (hasSection) {
+         const text = sections.get('title').textContent.trim();
+         if (text) {
+            titleNode.textContent = suffix && !text.includes(suffix)
+               ? text + ' — ' + suffix
+               : text;
+         } else if (suffix) {
+            titleNode.textContent = suffix;
+         }
+      } else if (suffix) {
+         const currentText = titleNode.textContent.trim();
+         if (currentText && !titleNode.hasAttribute('data-yield')) {
+            titleNode.textContent = currentText.includes(suffix)
+               ? currentText
+               : currentText + ' — ' + suffix;
+         } else {
+            titleNode.textContent = suffix;
+         }
+      }
+
+      titleNode.removeAttribute('data-yield');
+      titleNode.removeAttribute('data-title-suffix');
+   }
+
    function applyYields(rootNode, sections, config) {
       const yieldNodes = Array.from(rootNode.querySelectorAll('[data-yield]'));
 
@@ -227,24 +286,7 @@
          const hasSection = sections.has(name);
 
          if (node.tagName === 'TITLE') {
-            const suffixKey = node.getAttribute('data-title-suffix');
-            const suffix = suffixKey && config && config[suffixKey] ? config[suffixKey] : '';
-
-            if (hasSection) {
-               const text = sections.get(name).textContent.trim();
-               if (text) {
-                  node.textContent = suffix && !text.includes(suffix)
-                     ? text + ' — ' + suffix
-                     : text;
-               } else if (suffix) {
-                  node.textContent = suffix;
-               }
-            } else if (suffix) {
-               node.textContent = suffix;
-            }
-
-            node.removeAttribute('data-yield');
-            node.removeAttribute('data-title-suffix');
+            applyTitleElement(node, sections, config);
             continue;
          }
 
@@ -287,11 +329,19 @@
       }
    }
 
-   function extractScripts(container) {
+   function isExecutableScript(scriptEl) {
+      const type = (scriptEl.getAttribute('type') || '').trim().toLowerCase();
+      return type === '' || type === 'text/javascript' || type === 'application/javascript' || type === 'module';
+   }
+
+   function extractScripts(container, skipSet) {
       const scripts = [];
       const nodes = Array.from(container.querySelectorAll('script'));
 
       for (const oldScript of nodes) {
+         if (skipSet && skipSet.has(oldScript)) continue;
+         if (!isExecutableScript(oldScript)) continue;
+
          const info = {
             attrs: Array.from(oldScript.attributes).map(function (attr) {
                return { name: attr.name, value: attr.value };
@@ -314,8 +364,10 @@
                info.attrs.forEach(function (attr) {
                   if (attr.name === 'src') {
                      isExternal = true;
+                     script.setAttribute('src', withCacheBust(resolveProjectUrl(attr.value, window.location.href)));
+                  } else {
+                     script.setAttribute(attr.name, attr.value);
                   }
-                  script.setAttribute(attr.name, attr.value);
                });
 
                script.async = false;
@@ -337,6 +389,38 @@
       }, Promise.resolve());
    }
 
+   function createFreshLink(oldLink) {
+      const freshLink = document.createElement('link');
+      Array.from(oldLink.attributes).forEach(function (attr) {
+         if (attr.name === 'href') {
+            const resolvedHref = resolveProjectUrl(attr.value, window.location.href);
+            freshLink.setAttribute('href', withCacheBust(resolvedHref));
+         } else {
+            freshLink.setAttribute(attr.name, attr.value);
+         }
+      });
+      return freshLink;
+   }
+
+   function mountHeadNodes(sourceHead) {
+      Array.from(document.head.children).forEach(function (child) {
+         if (child !== currentScript && child !== loadingStyle) {
+            child.remove();
+         }
+      });
+
+      while (sourceHead.firstChild) {
+         const node = sourceHead.firstChild;
+         if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'LINK') {
+            const freshLink = createFreshLink(node);
+            node.remove();
+            document.head.appendChild(freshLink);
+         } else {
+            document.head.appendChild(document.adoptNode(node));
+         }
+      }
+   }
+
    function waitForStylesheets() {
       const links = Array.from(document.head.querySelectorAll('link[rel="stylesheet"]'));
       if (links.length === 0) return Promise.resolve();
@@ -354,6 +438,34 @@
       });
 
       return Promise.race([Promise.all(pending), timeout]);
+   }
+
+   function syncInitialThemeImages() {
+      const resolvedTheme = document.documentElement.getAttribute('data-bs-theme') || 'light';
+      const activeAttr = resolvedTheme === 'dark' ? 'data-img-theme-dark' : 'data-img-theme-light';
+
+      document.querySelectorAll('img[data-img-theme-light], img[data-img-theme-dark]').forEach(function (img) {
+         if (!('imgThemeOriginalSrc' in img.dataset)) {
+            img.dataset.imgThemeOriginalSrc = img.getAttribute('src') || '';
+         }
+
+         const hasActiveAttr = img.hasAttribute(activeAttr);
+         const activeVal = hasActiveAttr ? (img.getAttribute(activeAttr) || '').trim() : '';
+
+         if (hasActiveAttr && (activeVal === '' || activeVal.toLowerCase() === 'invert')) {
+            if (img.dataset.imgThemeOriginalSrc && img.getAttribute('src') !== img.dataset.imgThemeOriginalSrc) {
+               img.setAttribute('src', img.dataset.imgThemeOriginalSrc);
+            }
+            img.style.filter = 'invert(1)';
+            img.dataset.imgThemeInverted = 'true';
+            return;
+         }
+
+         const targetSrc = hasActiveAttr && activeVal ? activeVal : img.dataset.imgThemeOriginalSrc;
+         if (targetSrc && img.getAttribute('src') !== targetSrc) {
+            img.setAttribute('src', targetSrc);
+         }
+      });
    }
 
    function markActiveNavLinks() {
@@ -471,11 +583,16 @@
          rewriteAtUrls(parsed.head);
          rewriteAtUrls(parsed.body);
 
-         // Salin atribut <html> (kecuali data-bs-theme) dan <body> dari layout
+         // Salin atribut <html> (pertahankan data-bs-theme & template-loading) dan <body> dari layout
          Array.from(parsed.documentElement.attributes).forEach(function (attr) {
-            if (attr.name !== 'data-bs-theme') {
-               document.documentElement.setAttribute(attr.name, attr.value);
+            if (attr.name === 'data-bs-theme') return;
+            if (attr.name === 'class') {
+               attr.value.split(/\s+/).filter(Boolean).forEach(function (cls) {
+                  document.documentElement.classList.add(cls);
+               });
+               return;
             }
+            document.documentElement.setAttribute(attr.name, attr.value);
          });
 
          Array.from(document.body.attributes).forEach(function (attr) {
@@ -491,30 +608,26 @@
          const headScripts = extractScripts(parsed.head);
          const bodyScripts = extractScripts(parsed.body);
 
-         // Pasang head dari layout (pertahankan script engine & loading style)
-         Array.from(document.head.children).forEach(function (child) {
-            if (child !== currentScript && child !== loadingStyle) {
-               child.remove();
-            }
-         });
-         while (parsed.head.firstChild) {
-            document.head.appendChild(document.adoptNode(parsed.head.firstChild));
-         }
+         // Pasang head (buat ulang <link> agar selalu dimuat bersih) dan body dari layout
+         mountHeadNodes(parsed.head);
 
-         // Pasang body dari layout
          document.body.innerHTML = '';
          while (parsed.body.firstChild) {
             document.body.appendChild(document.adoptNode(parsed.body.firstChild));
          }
 
          await waitForStylesheets();
+         syncInitialThemeImages();
          markActiveNavLinks();
          revealPage();
 
          await runScriptsSequentially(headScripts, document.head);
          await runScriptsSequentially(bodyScripts, document.body);
       } else {
-         // Mode standalone (tanpa data-extends, hanya data-include & data-push/stack)
+         // Mode standalone (tanpa data-extends, tetap mendukung include, push/stack, config, & script dinamis)
+         const existingScripts = new WeakSet(document.querySelectorAll('script'));
+         const existingLinks = new WeakSet(document.querySelectorAll('link[rel="stylesheet"]'));
+
          rewriteAtUrls(document.head);
          rewriteAtUrls(document.body);
          collectPushes(document, stacks);
@@ -524,14 +637,34 @@
 
          applyStacks(document.head, stacks);
          applyStacks(document.body, stacks);
+
+         const titleNode = document.head.querySelector('title[data-title-suffix], title[data-yield="title"]');
+         if (titleNode) {
+            applyTitleElement(titleNode, null, config);
+         }
+
          applyConfigs(document.head, config);
          applyConfigs(document.body, config);
          rewriteAtUrls(document.head);
          rewriteAtUrls(document.body);
 
+         // Buat ulang <link rel="stylesheet"> yang baru disisipkan agar selalu termuat
+         Array.from(document.head.querySelectorAll('link[rel="stylesheet"]')).forEach(function (link) {
+            if (!existingLinks.has(link)) {
+               link.replaceWith(createFreshLink(link));
+            }
+         });
+
+         const injectedHeadScripts = extractScripts(document.head, existingScripts);
+         const injectedBodyScripts = extractScripts(document.body, existingScripts);
+
          await waitForStylesheets();
+         syncInitialThemeImages();
          markActiveNavLinks();
          revealPage();
+
+         await runScriptsSequentially(injectedHeadScripts, document.head);
+         await runScriptsSequentially(injectedBodyScripts, document.body);
       }
 
       window.TemplateEngine.isReady = true;

@@ -1,6 +1,7 @@
 /**
  * Pengalih Tema Bootstrap 5.3 (Light / Dark / Auto)
- * Sinkron dengan atribut data-bs-theme pada <html> dan localStorage.
+ * Sinkron dengan atribut data-bs-theme pada <html>, localStorage,
+ * serta gambar adaptif tema (data-img-theme-light / data-img-theme-dark).
  */
 (function () {
    'use strict';
@@ -13,7 +14,20 @@
    };
 
    function getPreferredTheme() {
-      return localStorage.getItem(STORAGE_KEY) || 'auto';
+      try {
+         const saved = localStorage.getItem(STORAGE_KEY) || 'auto';
+         return (saved === 'light' || saved === 'dark' || saved === 'auto') ? saved : 'auto';
+      } catch (_) {
+         return 'auto';
+      }
+   }
+
+   function savePreferredTheme(theme) {
+      try {
+         localStorage.setItem(STORAGE_KEY, theme);
+      } catch (_) {
+         // Abaikan jika penyimpanan browser dibatasi
+      }
    }
 
    function resolveTheme(theme) {
@@ -34,7 +48,7 @@
       const activeAttr = resolvedTheme === 'dark' ? 'data-img-theme-dark' : 'data-img-theme-light';
 
       document.querySelectorAll('img[data-img-theme-light], img[data-img-theme-dark]').forEach(function (img) {
-         if (!img.dataset.imgThemeOriginalSrc) {
+         if (!('imgThemeOriginalSrc' in img.dataset)) {
             img.dataset.imgThemeOriginalSrc = img.getAttribute('src') || '';
          }
 
@@ -92,7 +106,7 @@
          btn.addEventListener('click', function () {
             const selected = btn.getAttribute('data-theme-value');
             if (!selected) return;
-            localStorage.setItem(STORAGE_KEY, selected);
+            savePreferredTheme(selected);
             applyTheme(selected);
          });
       });
@@ -107,4 +121,3 @@
    bindSwitchers();
    document.addEventListener('template:ready', bindSwitchers);
 })();
-

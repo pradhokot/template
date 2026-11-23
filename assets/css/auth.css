@@ -1,0 +1,6 @@
+/* Gaya dasar area publik dan autentikasi (berbasis token Bootstrap 5.3) */
+.auth-card {
+   width: 100%;
+   max-width: 420px;
+}
+

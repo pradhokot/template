@@ -17,7 +17,7 @@
    const THEME_STORAGE_KEY = 'app-theme';
    const MAX_INCLUDE_DEPTH = 12;
    const STYLESHEET_TIMEOUT_MS = 1500;
-   const REWRITE_ATTRS = ['href', 'src', 'action', 'poster', 'data-href'];
+   const REWRITE_ATTRS = ['href', 'src', 'action', 'poster', 'data-href', 'data-img-theme-light', 'data-img-theme-dark'];
 
    // Deteksi root proyek secara otomatis dari posisi script ini
    const currentScript = document.currentScript;

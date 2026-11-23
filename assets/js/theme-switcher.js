@@ -27,6 +27,39 @@
       const resolved = resolveTheme(theme);
       document.documentElement.setAttribute('data-bs-theme', resolved);
       updateSwitchers(theme);
+      updateThemeImages(resolved);
+   }
+
+   function updateThemeImages(resolvedTheme) {
+      const activeAttr = resolvedTheme === 'dark' ? 'data-img-theme-dark' : 'data-img-theme-light';
+
+      document.querySelectorAll('img[data-img-theme-light], img[data-img-theme-dark]').forEach(function (img) {
+         if (!img.dataset.imgThemeOriginalSrc) {
+            img.dataset.imgThemeOriginalSrc = img.getAttribute('src') || '';
+         }
+
+         const hasActiveAttr = img.hasAttribute(activeAttr);
+         const activeVal = hasActiveAttr ? (img.getAttribute(activeAttr) || '').trim() : '';
+
+         if (hasActiveAttr && (activeVal === '' || activeVal.toLowerCase() === 'invert')) {
+            if (img.dataset.imgThemeOriginalSrc && img.getAttribute('src') !== img.dataset.imgThemeOriginalSrc) {
+               img.setAttribute('src', img.dataset.imgThemeOriginalSrc);
+            }
+            img.style.filter = 'invert(1)';
+            img.dataset.imgThemeInverted = 'true';
+            return;
+         }
+
+         if (img.dataset.imgThemeInverted === 'true') {
+            img.style.filter = '';
+            delete img.dataset.imgThemeInverted;
+         }
+
+         const targetSrc = hasActiveAttr && activeVal ? activeVal : img.dataset.imgThemeOriginalSrc;
+         if (targetSrc && img.getAttribute('src') !== targetSrc) {
+            img.setAttribute('src', targetSrc);
+         }
+      });
    }
 
    function updateSwitchers(activeTheme) {

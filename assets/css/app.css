@@ -4,7 +4,7 @@
    --bs-body-color-rgb: 38, 38, 38;
    --bs-tertiary-bg: #f4f4f4;
    --bs-tertiary-bg-rgb: 244, 244, 244;
-   --bs-border-color: color-mix(in srgb, currentColor 30%, transparent);
+   --bs-border-color: color-mix(in srgb, var(--bs-body-color) 30%, transparent);
    --bs-border-color-translucent: var(--bs-border-color);
 }
 
@@ -15,7 +15,7 @@
    --bs-body-bg-rgb: 38, 38, 38;
    --bs-tertiary-bg: #333333;
    --bs-tertiary-bg-rgb: 51, 51, 51;
-   --bs-border-color: color-mix(in srgb, currentColor 30%, transparent);
+   --bs-border-color: color-mix(in srgb, var(--bs-body-color) 30%, transparent);
    --bs-border-color-translucent: var(--bs-border-color);
 }
 
@@ -27,21 +27,37 @@
    width: 80% !important;
 }
 
+/* Sembunyikan slot gambar backend jika src kosong atau gagal dimuat agar fallback z-0 tampil */
+.img-slot:not([src]),
+.img-slot[src=""],
+.img-slot[src="#"] {
+   display: none;
+}
+
 .dropdown>.dropdown-menu {
    padding-top: 1.5rem;
    padding-bottom: 2rem;
 }
 
-.dropdown:hover>.dropdown-menu {
+.dropdown>.dropdown-menu.show {
    display: block;
 }
 
+@media (hover: hover) and (pointer: fine) {
+   .dropdown:not([data-mega-dropdown]):hover>.dropdown-menu {
+      display: block;
+   }
+}
+
 .dropdown .link-body-emphasis.active,
-.dropdown:hover>.link-body-emphasis {
+.dropdown.is-open>.link-body-emphasis,
+.dropdown:not([data-mega-dropdown]):hover>.link-body-emphasis {
    --bs-link-opacity: .5;
 }
 
-.link-body-emphasis.active:not([role="tablist"] .link-body-emphasis.active:not(:is([href=""], [href="#"]))) {
+/* Nonaktifkan klik hanya pada tautan navigasi aktif atau tab mega-menu aktif tanpa URL tujuan */
+[data-nav].active,
+[data-mega-tab].active:is([href=""], [href="#"]) {
    pointer-events: none;
 }
 
@@ -53,7 +69,6 @@
 .nav[role="tablist"] .link-body-emphasis {
    white-space: nowrap;
    min-width: 175px;
-   text-transform: capitalize;
 }
 
 .brand-thumbnails {
@@ -65,24 +80,24 @@
 
 .collapse-toggle {
    position: relative;
+}
 
-   &::after {
-      content: "\f286";
-      font-family: "bootstrap-icons";
-      position: absolute;
-      top: 50%;
-      right: 0;
-      transform: translateY(-50%) rotate(180deg);
-      transition: .3s;
-   }
+.collapse-toggle::after {
+   content: "\f286";
+   font-family: "bootstrap-icons";
+   position: absolute;
+   top: 50%;
+   right: 0;
+   transform: translateY(-50%) rotate(180deg);
+   transition: .3s;
+}
 
-   &:not(.collapsed) {
-      --bs-link-opacity: .5;
-   }
+.collapse-toggle:not(.collapsed) {
+   --bs-link-opacity: .5;
+}
 
-   &:not(.collapsed)::after {
-      transform: translateY(-50%) rotate(0deg);
-   }
+.collapse-toggle:not(.collapsed)::after {
+   transform: translateY(-50%) rotate(0deg);
 }
 
 .skip-link:focus {
@@ -104,7 +119,6 @@
 }
 
 @media (min-width: 576px) {
-
    .container,
    .container-lg,
    .container-md,
@@ -114,10 +128,6 @@
       width: 94%;
       max-width: 1200px;
    }
-}
-
-body {
-   min-width: 360px;
 }
 
 @media (min-width: 992px) {

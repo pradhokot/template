@@ -1,29 +1,32 @@
 <aside class="d-lg-none">
-   <div id="sidebar" class="offcanvas offcanvas-start" tabindex="-1">
+   <div id="sidebar" class="offcanvas offcanvas-start" tabindex="-1" aria-label="Menu navigasi seluler">
       <div class="offcanvas-header">
-         <button type="button" class="btn-close rounded-0 border-0 shadow-none" data-bs-dismiss="offcanvas"></button>
+         <button type="button" class="btn-close rounded-0 border-0 shadow-none" data-bs-dismiss="offcanvas"
+            aria-label="Tutup menu navigasi"></button>
       </div>
       <div class="offcanvas-body p-0 vstack">
 
-         <nav aria-label="navigasi pada tampilan seluler" class="flex-grow-1 px-3">
-            <ul class="list-unstyled text-capitalize vstack">
+         <nav aria-label="Navigasi pada tampilan seluler" class="flex-grow-1 px-3">
+            <ul class="list-unstyled vstack">
                <li>
-                  <a href="@/pages/about.html"
+                  <a href="@/pages/about.html" data-nav
                      class="link-body-emphasis text-decoration-none link-opacity-50-hover d-block py-2">
-                     tentang kami
+                     Tentang Kami
                   </a>
                </li>
                <li>
-                  <a data-bs-toggle="collapse" href="#collapseProduct"
+                  <a data-bs-toggle="collapse" href="#collapseProduct" role="button" aria-expanded="false"
+                     aria-controls="collapseProduct"
                      class="link-body-emphasis text-decoration-none link-opacity-50-hover d-block py-2 collapse-toggle collapsed">
-                     produk
+                     Produk
                   </a>
                   <div id="collapseProduct" class="collapse">
                      <ul class="list-unstyled vstack ps-3 pb-3">
                         <li>
-                           <a data-bs-toggle="collapse" href="#collapseProductConsument"
+                           <a data-bs-toggle="collapse" href="#collapseProductConsument" role="button"
+                              aria-expanded="false" aria-controls="collapseProductConsument"
                               class="link-body-emphasis text-decoration-none link-opacity-50-hover d-block py-2 collapse-toggle collapsed">
-                              produk konsumen
+                              Produk Konsumen
                            </a>
                            <div id="collapseProductConsument" class="collapse">
                               <ul class="list-unstyled vstack ps-3 pb-3">
@@ -48,19 +51,19 @@
                                  <li>
                                     <a href="#"
                                        class="link-body-emphasis text-decoration-none link-opacity-50-hover d-block py-2">
-                                       rasa sayang
+                                       Rasa Sayang
                                     </a>
                                  </li>
                                  <li>
                                     <a href="#"
                                        class="link-body-emphasis text-decoration-none link-opacity-50-hover d-block py-2">
-                                       tugu buaya
+                                       Tugu Buaya
                                     </a>
                                  </li>
                                  <li>
                                     <a href="#"
                                        class="link-body-emphasis text-decoration-none link-opacity-50-hover d-block py-2">
-                                       uang emas
+                                       Uang Emas
                                     </a>
                                  </li>
                                  <li>
@@ -72,7 +75,7 @@
                                  <li>
                                     <a href="#"
                                        class="link-body-emphasis text-decoration-none link-opacity-50-hover d-block py-2">
-                                       jaheku
+                                       Jaheku
                                     </a>
                                  </li>
                                  <li>
@@ -84,7 +87,7 @@
                                  <li>
                                     <a href="#"
                                        class="link-body-emphasis text-decoration-none link-opacity-50-hover d-block py-2">
-                                       hao cafe
+                                       Hao Cafe
                                     </a>
                                  </li>
                               </ul>
@@ -93,52 +96,52 @@
                         <li>
                            <a href="#"
                               class="link-body-emphasis text-decoration-none link-opacity-50-hover d-block py-2">
-                              layanan makanan
+                              Jasa Boga
                            </a>
                         </li>
                         <li>
                            <a href="#"
                               class="link-body-emphasis text-decoration-none link-opacity-50-hover d-block py-2">
-                              mesin-mesin & peralatan khusus
+                              Mesin-mesin & Peralatan Khusus
                            </a>
                         </li>
                      </ul>
                   </div>
                </li>
                <li>
-                  <a href="@/pages/businesses.html"
+                  <a href="@/pages/businesses.html" data-nav
                      class="link-body-emphasis text-decoration-none link-opacity-50-hover d-block py-2">
-                     bisnis
+                     Bisnis
                   </a>
                </li>
                <li>
-                  <a href="@/pages/online-store.html"
+                  <a href="@/pages/online-store.html" data-nav
                      class="link-body-emphasis text-decoration-none link-opacity-50-hover d-block py-2">
-                     toko daring
+                     Toko Daring
                   </a>
                </li>
                <li>
-                  <a href="@/pages/news.html"
+                  <a href="@/pages/news.html" data-nav
                      class="link-body-emphasis text-decoration-none link-opacity-50-hover d-block py-2">
-                     berita
+                     Berita
                   </a>
                </li>
                <li>
-                  <a href="@/pages/downloads.html"
+                  <a href="@/pages/downloads.html" data-nav
                      class="link-body-emphasis text-decoration-none link-opacity-50-hover d-block py-2">
-                     unduhan
+                     Unduhan
                   </a>
                </li>
                <li>
-                  <a href="@/pages/career.html"
+                  <a href="@/pages/career.html" data-nav
                      class="link-body-emphasis text-decoration-none link-opacity-50-hover d-block py-2">
-                     karir
+                     Karir
                   </a>
                </li>
                <li>
-                  <a href="@/pages/contact.html"
+                  <a href="@/pages/contact.html" data-nav
                      class="link-body-emphasis text-decoration-none link-opacity-50-hover d-block py-2">
-                     kontak
+                     Kontak
                   </a>
                </li>
             </ul>

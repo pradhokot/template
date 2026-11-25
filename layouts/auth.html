@@ -5,8 +5,10 @@
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title data-yield="title" data-title-suffix="app-name">Nama Aplikasi</title>
+   <link rel="shortcut icon" href="@/assets/images/icon-indraco.ico" type="image/x-icon">
    <link rel="stylesheet" href="@/assets/vendor/bootstrap-5.3.8-dist/css/bootstrap.min.css">
    <link rel="stylesheet" href="@/assets/vendor/bootstrap-icons-1.13.1/bootstrap-icons.min.css">
+   <link rel="stylesheet" href="@/assets/fonts/myFont.css">
    <link rel="stylesheet" href="@/assets/css/auth.css">
    <template data-stack="styles"></template>
 </head>
@@ -14,9 +16,12 @@
 <body class="d-flex flex-column min-vh-100 bg-body-tertiary">
    <header class="py-3">
       <div class="container d-flex align-items-center justify-content-between">
-         <a href="@/pages/home.html" class="text-decoration-none fw-semibold text-body d-inline-flex align-items-center gap-2">
-            <i class="bi bi-grid-1x2-fill text-primary" aria-hidden="true"></i>
-            <span data-config="app-name">Nama Aplikasi</span>
+         <a href="@/pages/home.html" class="text-decoration-none d-inline-flex align-items-center"
+            aria-label="Kembali ke beranda INDRACO">
+            <img src="@/assets/images/logo-indraco-dark.png"
+               data-img-theme-light="@/assets/images/logo-indraco-dark.png"
+               data-img-theme-dark="@/assets/images/logo-indraco-light.png"
+               alt="Logo INDRACO" class="h-auto" style="max-width: 140px;">
          </a>
          <template data-include="components/theme-switcher.html"></template>
       </div>
@@ -40,4 +45,3 @@
 </body>
 
 </html>
-

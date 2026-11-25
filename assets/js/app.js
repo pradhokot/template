@@ -23,6 +23,27 @@
       });
    }
 
+   function getMegaMenuBackdrop() {
+      if (!document.querySelector('[data-mega-dropdown]')) return null;
+
+      let backdrop = document.querySelector('.mega-menu-backdrop');
+      if (!backdrop) {
+         backdrop = document.createElement('div');
+         backdrop.className = 'mega-menu-backdrop';
+         backdrop.setAttribute('aria-hidden', 'true');
+         document.body.appendChild(backdrop);
+      }
+      return backdrop;
+   }
+
+   function syncMegaMenuBackdrop() {
+      const backdrop = getMegaMenuBackdrop();
+      if (!backdrop) return;
+
+      const hasOpenDropdown = Boolean(document.querySelector('[data-mega-dropdown].is-open'));
+      backdrop.classList.toggle('show', hasOpenDropdown);
+   }
+
    function setMegaDropdownState(dropdown, isOpen) {
       const toggle = dropdown.querySelector('[data-mega-toggle]');
       const menu = dropdown.querySelector(':scope > .dropdown-menu');
@@ -31,6 +52,7 @@
       dropdown.classList.toggle('is-open', isOpen);
       menu.classList.toggle('show', isOpen);
       toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      syncMegaMenuBackdrop();
    }
 
    function closeAllMegaDropdowns(exceptDropdown) {
@@ -174,6 +196,15 @@
          }
       });
 
+      // Tutup mega-menu jika modal atau offcanvas dibuka agar backdrop tidak menumpuk
+      document.addEventListener('show.bs.modal', function () {
+         closeAllMegaDropdowns(null);
+      });
+
+      document.addEventListener('show.bs.offcanvas', function () {
+         closeAllMegaDropdowns(null);
+      });
+
       // Modal pencarian: auto-focus input saat terbuka & cegah reload halaman saat submit preview
       document.addEventListener('shown.bs.modal', function (event) {
          const modal = event.target;
@@ -194,6 +225,7 @@
    function initApp() {
       initTooltips();
       hideBrokenImageSlots();
+      getMegaMenuBackdrop();
       bindGlobalListeners();
    }
 

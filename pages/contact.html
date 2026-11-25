@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <script src="../assets/js/template-engine.js"></script>
+</head>
+
+<body hidden>
+   <template data-extends="layouts/app.html"></template>
+   <template data-section="title">Lokasi & Kontak</template>
+   <template data-push="styles">
+      <style>
+         * {
+            outline: solid 1px transparent;
+         }
+      </style>
+   </template>
+
+   <template data-section="content">
+      <section class="py-5">
+         <div class="container">
+            <h1 class="display-5 fw-bold">Hubungi Kami</h1>
+         </div>
+      </section>
+   </template>
+</body>
+
+</html>
